@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новогодняя таблица результатов</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0c1a2c 0%, #1a1a3c 50%, #0c2c1a 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            color: #ffde59;
+            text-shadow: 0 0 15px rgba(255, 222, 89, 0.7);
+            letter-spacing: 2px;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        input {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #ffde59;
+            box-shadow: 0 0 15px rgba(255, 222, 89, 0.5);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        button {
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(45deg, #ff416c, #ffde59);
+            color: #0c1a2c;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(255, 222, 89, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(255, 222, 89, 0.2);
+        }
+
+        th {
+            padding: 20px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #ffde59;
+            border-bottom: 2px solid rgba(255, 222, 89, 0.5);
+        }
+
+        td {
+            padding: 18px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .edit-btn {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+        }
+
+        .delete-btn {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+        }
+
+        .save-btn {
+            background: linear-gradient(45deg, #42e695, #3bb2b8);
+        }
+
+        .score-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-btn {
+            padding: 8px 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .score-btn:hover {
+            background: rgba(255, 222, 89, 0.3);
+            transform: scale(1.1);
+        }
+
+        .snowflake {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            z-index: 1;
+        }
+
+        .snowflake:nth-child(odd) {
+            animation: fall 15s linear infinite;
+        }
+
+        .snowflake:nth-child(even) {
+            animation: fall 20s linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .decoration {
+            position: absolute;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
+            animation: twinkle 3s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        .christmas-ball {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            z-index: 1;
+            animation: swing 5s infinite ease-in-out;
+        }
+
+        @keyframes swing {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(10deg); }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            input {
+                min-width: 100%;
+            }
+            
+            th, td {
+                padding: 12px 10px;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .score-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Новогодние декорации -->
+    <div id="decorations"></div>
+    
+    <!-- Снежинки -->
+    <div id="snowflakes"></div>
+    
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-tree"></i> Новогодняя таблица результатов</h1>
+        </header>
+        
+        <main>
+            <section class="controls">
+                <h2><i class="fas fa-user-plus"></i> Добавить нового игрока</h2>
+                <div class="input-group">
+                    <input type="text" id="playerName" placeholder="Введите имя игрока" maxlength="30">
+                    <input type="number" id="playerScore" placeholder="Очки (по умолчанию 0)" min="0" max="10000" value="0">
+                    <button id="addPlayer">
+                        <i class="fas fa-plus-circle"></i> Добавить игрока
+                    </button>
+                </div>
+            </section>
+            
+            <section class="table-container">
+                <h2 style="padding: 20px 25px 0; margin: 0;"><i class="fas fa-trophy"></i> Таблица результатов</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="5%">№</th>
+                            <th width="35%">Имя игрока</th>
+                            <th width="30%">Очки</th>
+                            <th width="30%">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playersTable">
+                        <!-- Данные будут загружены сюда -->
+                    </tbody>
+                </table>
+            </section>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="clearAll" style="background: linear-gradient(45deg, #ff416c, #ff4b2b);">
+                    <i class="fas fa-trash-alt"></i> Очистить все данные
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Глобальные переменные
+        let players = JSON.parse(localStorage.getItem('newYearPlayers')) || [];
+        let editMode = false;
+        let editIndex = null;
+
+        // DOM элементы
+        const playersTable = document.getElementById('playersTable');
+        const playerNameInput = document.getElementById('playerName');
+        const playerScoreInput = document.getElementById('playerScore');
+        const addPlayerBtn = document.getElementById('addPlayer');
+        const clearAllBtn = document.getElementById('clearAll');
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable();
+            createSnowflakes(50);
+            createDecorations();
+            
+            // Фокус на поле ввода имени
+            playerNameInput.focus();
+            
+            // Настройка обработчиков событий
+            addPlayerBtn.addEventListener('click', addOrUpdatePlayer);
+            clearAllBtn.addEventListener('click', clearAllData);
+            
+            // Добавление обработчика для клавиши Enter
+            playerNameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    playerScoreInput.focus();
+                }
+            });
+            
+            playerScoreInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addOrUpdatePlayer();
+            });
+        });
+
+        // Функция добавления или обновления игрока
+        function addOrUpdatePlayer() {
+            const name = playerNameInput.value.trim();
+            
+            if (!name) {
+                alert('Пожалуйста, введите имя игрока');
+                playerNameInput.focus();
+                return;
+            }
+            
+            let score = parseInt(playerScoreInput.value) || 0;
+            
+            if (score < 0) {
+                alert('Пожалуйста, введите корректное количество очков (0 или больше)');
+                playerScoreInput.focus();
+                return;
+            }
+            
+            if (editMode) {
+                // Режим редактирования
+                players[editIndex].name = name;
+                players[editIndex].score = score;
+                editMode = false;
+                editIndex = null;
+                addPlayerBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Добавить игрока';
+            } else {
+                // Добавление нового игрока
+                players.push({
+                    id: Date.now() + Math.random(),
+                    name: name,
+                    score: score
+                });
+            }
+            
+            // Сортировка по убыванию очков
+            players.sort((a, b) => b.score - a.score);
+            
+            // Сохранение в localStorage
+            saveToLocalStorage();
+            
+            // Очистка полей ввода
+            playerNameInput.value = '';
+            playerScoreInput.value = 0;
+            
+            // Обновление таблицы
+            renderTable();
+            
+            // Фокус на поле ввода имени
+            playerNameInput.focus();
+            
+            // Новогодняя анимация при добавлении
+            createConfetti();
+        }
+
+        // Функция изменения очков игрока
+        function updatePlayerScore(playerId, change) {
+            const playerIndex = players.findIndex(p => p.id === playerId);
+            if (playerIndex === -1) return;
+            
+            players[playerIndex].score += change;
+            
+            // Не даем уйти в минус
+            if (players[playerIndex].score < 0) {
+                players[playerIndex].score = 0;
+            }
+            
+            // Сортировка по убыванию очков
+            players.sort((a, b) => b.score - a.score);
+            
+            // Сохранение в localStorage
+            saveToLocalStorage();
+            
+            // Обновление таблицы
+            renderTable();
+            
+            // Анимация при изменении очков
+            createScoreChangeEffect(playerIndex, change);
+        }
+
+        // Функция редактирования игрока
+        function editPlayer(playerId) {
+            const playerIndex = players.findIndex(p => p.id === playerId);
+            if (playerIndex === -1) return;
+            
+            const player = players[playerIndex];
+            playerNameInput.value = player.name;
+            playerScoreInput.value = player.score;
+            
+            editMode = true;
+            editIndex = playerIndex;
+            addPlayerBtn.innerHTML = '<i class="fas fa-save"></i> Сохранить изменения';
+            
+            playerNameInput.focus();
+        }
+
+        // Функция удаления игрока
+        function deletePlayer(playerId) {
+            const playerIndex = players.findIndex(p => p.id === playerId);
+            if (playerIndex === -1) return;
+            
+            if (confirm('Вы уверены, что хотите удалить этого игрока?')) {
+                players.splice(playerIndex, 1);
+                saveToLocalStorage();
+                renderTable();
+                
+                // Если удаляем игрока, которого редактировали, сбросить режим редактирования
+                if (editMode && editIndex === playerIndex) {
+                    editMode = false;
+                    editIndex = null;
+                    addPlayerBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Добавить игрока';
+                    playerNameInput.value = '';
+                    playerScoreInput.value = 0;
+                }
+            }
+        }
+
+        // Функция сохранения в localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('newYearPlayers', JSON.stringify(players));
+        }
+
+        // Функция отрисовки таблицы
+        function renderTable() {
+            if (players.length === 0) {
+                playersTable.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 40px; color: #b3e5fc;">
+                            <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 15px; display: block;"></i>
+                            <p>Пока нет игроков. Добавьте первого!</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let tableHTML = '';
+            
+            players.forEach((player, index) => {
+                let scoreColor = '#fff';
+                if (player.score >= 1000) scoreColor = '#ffde59';
+                else if (player.score >= 500) scoreColor = '#4facfe';
+                else if (player.score >= 100) scoreColor = '#42e695';
+                
+                tableHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${player.name}</td>
+                        <td style="color: ${scoreColor}; font-weight: bold;">
+                            <div class="score-controls">
+                                <span>${player.score}</span>
+                                <div>
+                                    <button class="score-btn" onclick="updatePlayerScore(${player.id}, 1)" title="Добавить 1 очко">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                    <button class="score-btn" onclick="updatePlayerScore(${player.id}, -1)" title="Вычесть 1 очко">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn edit-btn" onclick="editPlayer(${player.id})">
+                                    <i class="fas fa-edit"></i> Изменить
+                                </button>
+                                <button class="action-btn delete-btn" onclick="deletePlayer(${player.id})">
+                                    <i class="fas fa-trash-alt"></i> Удалить
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            playersTable.innerHTML = tableHTML;
+        }
+
+        // Функция очистки всех данных
+        function clearAllData() {
+            if (players.length === 0) {
+                alert('Таблица уже пуста!');
+                return;
+            }
+            
+            if (confirm('Вы уверены, что хотите удалить всех игроков? Это действие нельзя отменить.')) {
+                players = [];
+                saveToLocalStorage();
+                renderTable();
+                
+                editMode = false;
+                editIndex = null;
+                addPlayerBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Добавить игрока';
+                playerNameInput.value = '';
+                playerScoreInput.value = 0;
+                
+                createFireworks();
+            }
+        }
+
+        // Эффект при изменении очков
+        function createScoreChangeEffect(index, change) {
+            const playerRows = playersTable.children;
+            if (index >= playerRows.length) return;
+            
+            const playerRow = playerRows[index];
+            const scoreCell = playerRow.querySelector('.score-controls span');
+            if (!scoreCell) return;
+            
+            const changeElement = document.createElement('span');
+            changeElement.textContent = change > 0 ? `+${change}` : change;
+            changeElement.style.position = 'absolute';
+            changeElement.style.color = change > 0 ? '#42e695' : '#ff416c';
+            changeElement.style.fontWeight = 'bold';
+            changeElement.style.fontSize = '1.2rem';
+            changeElement.style.textShadow = '0 0 5px rgba(255,255,255,0.5)';
+            changeElement.style.zIndex = '100';
+            
+            const rect = scoreCell.getBoundingClientRect();
+            changeElement.style.left = `${rect.left + 20}px`;
+            changeElement.style.top = `${rect.top - 20}px`;
+            
+            document.body.appendChild(changeElement);
+            
+            const animation = changeElement.animate([
+                { transform: 'translateY(0)', opacity: 1 },
+                { transform: 'translateY(-30px)', opacity: 0 }
+            ], {
+                duration: 1000,
+                easing: 'ease-out'
+            });
+            
+            animation.onfinish = () => changeElement.remove();
+        }
+
+        // Создание снежинок
+        function createSnowflakes(count) {
+            const snowflakesContainer = document.getElementById('snowflakes');
+            
+            for (let i = 0; i < count; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.classList.add('snowflake');
+                
+                const size = Math.random() * 5 + 3;
+                snowflake.style.width = `${size}px`;
+                snowflake.style.height = `${size}px`;
+                snowflake.style.left = `${Math.random() * 100}vw`;
+                snowflake.style.animationDelay = `${Math.random() * 10}s`;
+                snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+                
+                snowflakesContainer.appendChild(snowflake);
+            }
+        }
+
+        // Создание новогодних украшений
+        function createDecorations() {
+            const decorationsContainer = document.getElementById('decorations');
+            
+            // Создание звезд
+            for (let i = 0; i < 30; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.top = `${Math.random() * 100}vh`;
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                decorationsContainer.appendChild(star);
+            }
+            
+            // Создание новогодних шаров
+            const colors = ['#ff416c', '#ffde59', '#4facfe', '#42e695', '#9c27b0'];
+            
+            for (let i = 0; i < 15; i++) {
+                const ball = document.createElement('div');
+                ball.classList.add('christmas-ball');
+                ball.style.left = `${Math.random() * 100}vw`;
+                ball.style.top = `${Math.random() * 100}vh`;
+                ball.style.background = `radial-gradient(circle at 30% 30%, ${colors[i % colors.length]}, #000)`;
+                ball.style.animationDelay = `${Math.random() * 5}s`;
+                ball.style.boxShadow = `0 5px 15px ${colors[i % colors.length]}`;
+                decorationsContainer.appendChild(ball);
+            }
+        }
+
+        // Создание конфетти при добавлении игрока
+        function createConfetti() {
+            const colors = ['#ff416c', '#ffde59', '#4facfe', '#42e695'];
+            
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.top = '-20px';
+                confetti.style.zIndex = '9999';
+                confetti.style.opacity = '0.9';
+                
+                document.body.appendChild(confetti);
+                
+                const animation = confetti.animate([
+                    { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+                    { transform: `translateY(${window.innerHeight + 20}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                ], {
+                    duration: Math.random() * 2000 + 1000,
+                    easing: 'cubic-bezier(0.215, 0.610, 0.355, 1)'
+                });
+                
+                animation.onfinish = () => confetti.remove();
+            }
+        }
+
+        // Создание фейерверка при очистке данных
+        function createFireworks() {
+            const colors = ['#ff416c', '#ffde59', '#4facfe', '#42e695', '#9c27b0'];
+            
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const x = Math.random() * 80 + 10;
+                    const y = Math.random() * 60 + 20;
+                    
+                    for (let j = 0; j < 30; j++) {
+                        const particle = document.createElement('div');
+                        particle.style.position = 'fixed';
+                        particle.style.width = '8px';
+                        particle.style.height = '8px';
+                        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                        particle.style.borderRadius = '50%';
+                        particle.style.left = `${x}vw`;
+                        particle.style.top = `${y}vh`;
+                        particle.style.zIndex = '9999';
+                        particle.style.opacity = '0.9';
+                        
+                        document.body.appendChild(particle);
+                        
+                        const angle = Math.random() * Math.PI * 2;
+                        const velocity = Math.random() * 5 + 2;
+                        const vx = Math.cos(angle) * velocity;
+                        const vy = Math.sin(angle) * velocity;
+                        
+                        const animation = particle.animate([
+                            { transform: 'translate(0, 0)', opacity: 1 },
+                            { transform: `translate(${vx}vw, ${vy}vh)`, opacity: 0 }
+                        ], {
+                            duration: Math.random() * 1000 + 500,
+                            easing: 'cubic-bezier(0.215, 0.610, 0.355, 1)'
+                        });
+                        
+                        animation.onfinish = () => particle.remove();
+                    }
+                }, i * 300);
+            }
+        }
+    </script>
+</body>
+</html>
